@@ -56,26 +56,23 @@ export class UserResolver {
     @Arg('options') options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
+    const errors: FieldError[] = [];
     if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: 'Length must be greater than 2',
-          },
-        ],
-      };
+      errors.push({
+        field: 'username',
+        message: 'Length must be greater than 2',
+      });
     }
 
     if (options.password.length <= 2) {
-      return {
-        errors: [
-          {
-            field: 'password',
-            message: 'Length must be greater than 2',
-          },
-        ],
-      };
+      errors.push({
+        field: 'password',
+        message: 'Length must be greater than 2',
+      });
+    }
+
+    if (errors.length) {
+      return { errors };
     }
 
     const hashedPassword = await argon2.hash(options.password);
