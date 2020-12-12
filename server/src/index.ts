@@ -17,6 +17,7 @@ import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
 import { User } from './entities/User';
 import { Post } from './entities/Post';
+import path from 'path';
 
 declare module 'express-session' {
   interface Session {
@@ -25,15 +26,17 @@ declare module 'express-session' {
 }
 
 const main = async () => {
-  await createConnection({
+  const conn = await createConnection({
     type: 'postgres',
     database: 'lireddit2',
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, './migrations/*')],
     entities: [User, Post],
   });
+  // await conn.runMigrations();
 
   const app = express();
 
