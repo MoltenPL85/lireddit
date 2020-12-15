@@ -17,6 +17,9 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
       <Button
         width='40px'
         onClick={async () => {
+          if (post.voteStatus === 1) {
+            return;
+          }
           setLoadingState('updoot-loading');
           await vote({
             postId: post.id,
@@ -25,6 +28,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
           setLoadingState('not-loading');
         }}
         isLoading={loadingState === 'updoot-loading'}
+        colorScheme={post.voteStatus === 1 ? 'green' : undefined}
       >
         <ChevronUpIcon size='24px' />
       </Button>
@@ -32,6 +36,9 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
       <Button
         width='40px'
         onClick={async () => {
+          if (post.voteStatus === -1) {
+            return;
+          }
           setLoadingState('downdoot-loading');
           await vote({
             postId: post.id,
@@ -40,6 +47,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
           setLoadingState('not-loading');
         }}
         isLoading={loadingState === 'downdoot-loading'}
+        colorScheme={post.voteStatus === -1 ? 'red' : undefined}
       >
         <ChevronDownIcon size='24px' />
       </Button>
