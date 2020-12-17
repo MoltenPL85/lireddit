@@ -29,28 +29,28 @@ declare module 'express-session' {
 }
 
 const main = async () => {
-  const conn = await createConnection({
+  // const conn =
+  await createConnection({
     type: 'postgres',
-    database: 'lireddit2',
-    username: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
+    url: process.env.DATABASE_URL,
     logging: true,
+    // don't forget comment or delete synchronize after deploy
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
     entities: [User, Post, Updoot],
   });
-  await conn.runMigrations();
+  // await conn.runMigrations();
 
   // await Post.delete({});
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
-
+  const redis = new Redis(process.env.REDIS_URL);
+  app.set('trust proxy', 1);
   app.use(
     cors({
-      origin: 'http://localhost:3000',
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     })
   );
@@ -69,7 +69,7 @@ const main = async () => {
         secure: __prod__,
       },
       saveUninitialized: false,
-      secret: process.env.REDIS_SECRET!,
+      secret: process.env.SESSION_SECRET!,
       resave: false,
     })
   );
@@ -93,7 +93,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
+  app.listen(process.env.PORT, () => {
     console.log('server started on localhost:4000');
   });
 };

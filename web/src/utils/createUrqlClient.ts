@@ -7,7 +7,8 @@ import {
 import { cacheExchange, Resolver, Cache } from '@urql/exchange-graphcache';
 import { pipe, tap } from 'wonka';
 import Router from 'next/router';
-import { gql } from '@urql/core';
+// import { gql } from '@urql/core';
+import gql from 'graphql-tag';
 import {
   LogoutMutation,
   MeQuery,
@@ -81,7 +82,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   }
 
   return {
-    url: 'http://localhost:4000/graphql',
+    url: process.env.NEXT_PUBLIC_API_URL as string,
     fetchOptions: {
       credentials: 'include' as const,
       headers: cookie
@@ -111,7 +112,11 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             vote: (_result, args, cache, info) => {
               const { postId, value } = args as VoteMutationVariables;
-              const data = cache.readFragment(
+              const data = cache.readFragment<{
+                id: number;
+                points: number;
+                voteStatus: number | null;
+              }>(
                 gql`
                   fragment _ on Post {
                     id
@@ -119,7 +124,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                     voteStatus
                   }
                 `,
-                { id: postId }
+                { id: postId } as any
               );
               if (data) {
                 if (data.voteStatus === value) {
